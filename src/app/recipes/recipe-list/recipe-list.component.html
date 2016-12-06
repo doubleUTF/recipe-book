@@ -6,7 +6,7 @@
 <div class="row">
   <div class="col-xs-12">
     <ul class="list-group">
-      <rb-recipe-item [recipe]='dummy_recipe'></rb-recipe-item>
+      <rb-recipe-item [recipe]='dummy_recipe' (click)='onSelected(dummy_recipe)' ></rb-recipe-item>
     </ul>
   </div>
 </div>
