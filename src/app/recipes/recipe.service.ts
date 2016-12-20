@@ -1,9 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 import { Recipe } from './recipe';
 import { Ingredient } from '../shared/ingredient';
+import { Http, Headers, Response } from '@angular/http';
+import 'rxjs/Rx';
 
 @Injectable()
 export class RecipeService {
+  recipesChanged= new EventEmitter<Recipe[]>();
+
   private recipes: Recipe[]=[
     new Recipe('Uthapizza','Indian style pizza','../../assets/uthapizza.png', [
       new Ingredient('French Fries', 2),
@@ -12,7 +16,7 @@ export class RecipeService {
     new Recipe('Vadonut','Donut that starts with a V', '../../assets/vadonut.png', [])
   ];
 
-  constructor() { }
+  constructor(private http:Http) { }
 
   getRecipes(){
     return this.recipes;
@@ -32,5 +36,25 @@ export class RecipeService {
 
   editRecipe(oldRecipe:Recipe, newRecipe:Recipe){
     this.recipes[this.recipes.indexOf(oldRecipe)]=newRecipe;
+  }
+
+  storeData(){
+    const body=JSON.stringify(this.recipes)
+    const headers= new Headers({
+      'Content-Type':'application/json'
+    })
+    return this.http.put('https://recipe-book-77cce.firebaseio.com/recipes.json',
+    body,{headers:headers});
+  }
+
+  fetchData(){
+    return this.http.get('https://recipe-book-77cce.firebaseio.com/recipes.json')
+    .map((response:Response)=>response.json())
+    .subscribe(
+      (data:Recipe[])=>{
+        this.recipes=data;
+        this.recipesChanged.emit(this.recipes);
+      }
+    );
   }
 }
